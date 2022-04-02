@@ -1,15 +1,15 @@
 ## double-letters
 
-Generator using Blender for 3D printable decorative letters. One model (.blend and .stl) is made of the intersection of two letters, the second turned 90°
+Blender generator script for 3D-printable decorative letters. One model (.blend and .stl) is made of the intersection of two letters, the second turned 90°
 
 ### Usage
 
-You need Blender 3+ installed.
-Clone the repo, and open the directory in a terminal.
-On Windows, you need to use the full path to the `blender.exe` executable file.
-On Linux, just use `blender`.
+- You need Blender 3+ installed. See blender.org
+- Clone the repo, and open the directory in a terminal.
+- On Windows, you need to use the full path to the `blender.exe` executable file.
+   On Linux, just use `blender`.
 
-#### Examples
+**Examples**
 |                       Option                       |                               Syntax                               |
 | -------------------------------------------------- | ------------------------------------------------------------------ |
 | Export .stl files                                  | `blender -b -P double-letters.py -- -w LOOK,WALK -e`               |
@@ -18,15 +18,18 @@ On Linux, just use `blender`.
 
 Use `blender -b -P double-letters.py -- -h` for help.
 
-#### Output
+**Output**
 
-letters_<yourwords>.blend
-letters_<yourwordsletters>.stl
 
-The blender file is useful for viewing and post-processing.
+- letters_*yourwords*.blend
+- letters_*yourwordsletters*.stl (multiple)
+
 Using the export option (-e) will create .stl files. One for the base and one for each double-letter.
 
+The blender file is useful for viewing and post-processing.
+
 ### Notes for slicing
+
 Since every double-letter comes as a .stl it should be easy to turn them in a way
 that is conducive to easy and nice 3D printing. Sometimes support is still necessary.
 Size 15 and lower double-letter models should use brims for proper bed adhesion.
