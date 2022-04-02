@@ -10,10 +10,13 @@ On Windows, you need to use the full path to the `blender.exe` executable file.
 On Linux, just use `blender`.
 
 #### Examples
-  
-- Export .stl files for letters and base to put them on (along with the .blend file) `blender -b -P double-letters.py -- -e -w GLANCE,CHANCE`
-- Specify a font to use. `blender -b -P double-letters.py -- -w LOOK,WALK -f Hack-Bold.ttf`
-- Default size is 50. Let's do small ones in size 15:  `blender -b -P double-letters.py -- -w GLANCE,CHANCE -s 15`
++----------------------------------------------------+--------------------------------------------------------------------+
+| Option                                             | Syntax                                                             |
++----------------------------------------------------+--------------------------------------------------------------------+
+| Export .stl files                                  | `blender -b -P double-letters.py -- -w LOOK,WALK -e`               |
+| Specify a font to use                              | `blender -b -P double-letters.py -- -w LOOK,WALK -f Hack-Bold.ttf` |
+| Default size is 50. Let's do small ones in size 15 | `blender -b -P double-letters.py -- -w LOOK,WALK -s 15`            |
++----------------------------------------------------+--------------------------------------------------------------------+
 
 Use `blender -b -P double-letters.py -- -h` for help.
 
