@@ -61,24 +61,16 @@ def letter_letters(word1, word2, size=50, font_path=None, export_stls=False, dep
     else:
         font = None
 
-    # cube_size = size / 1000
-    # fontpath = get_fontpath(font)
-    # if fontpath.exists():
-    #     font = bpy.data.fonts.load(str(fontpath))
-    # font_size = size / 1000
-    # font_size = size
-
     scene = bpy.context.scene
     letters = bpy.data.collections.new("letters")
     scene.collection.children.link(letters)
+
+    bpy.ops.preferences.addon_enable(module="object_print3d_utils")
 
     num_letters = min(len(word1), len(word2))
     for i in range(num_letters):
         letter1 = word1[i]
         letter2 = word2[i]
-
-        # structure = bpy.data.objects.new(f"{letter1}_{letter2}", None)
-        # letters.objects.link(structure)
 
         # letter 1
         txt_data = bpy.data.curves.new(name="Letter", type="FONT")
@@ -109,9 +101,7 @@ def letter_letters(word1, word2, size=50, font_path=None, export_stls=False, dep
         # letter 2
         txt_data2 = bpy.data.curves.new(name="Letter", type="FONT")
         txt_ob2 = bpy.data.objects.new(name=f"Letter {letter2}", object_data=txt_data2)
-        # txt_ob2.parent = structure
         letters.objects.link(txt_ob2)  # add the data to the scene as an object
-        # letter_intersectors.objects.link(txt_ob2)
         if font:
             txt_data2.font = font
         txt_data2.size = size
@@ -139,23 +129,17 @@ def letter_letters(word1, word2, size=50, font_path=None, export_stls=False, dep
 
         # remove and arrange
         bpy.data.objects.remove(txt_ob2, do_unlink=True)
-        # structure.location.x += size / 2 * i
-        # structure.location.y += size / 2 * i
         txt_ob.location.x += size / 2 * i
         txt_ob.location.y += size / 2 * i
 
-    # letter_intersectors.hide_viewport = True
-
     # construct a base
+    bpy.ops.preferences.addon_enable(module="object_print3d_utils")
     base_name = f"lettersbase_{word1}_{word2}"
     base = bpy.data.meshes.new("letters base")
     base_ob = bpy.data.objects.new(name=base_name, object_data=base)
     scene.collection.objects.link(base_ob)
 
-    # length = Vector((txt_ob.location.x, txt_ob.location.y, 0)).length
-    # length = Vector((txt_ob.location.x, 0, 0)).length
     length = (sqrt(size**2 / 2) * num_letters) / 2
-    # print(length)
     width = Vector((txt_ob.dimensions.x, txt_ob.dimensions.y, 0)).length / 2
     width *= 1.08
 
@@ -164,7 +148,6 @@ def letter_letters(word1, word2, size=50, font_path=None, export_stls=False, dep
     bmesh.ops.create_grid(
         bm,
         x_segments=num_letters,
-        # x_segments=1,
         y_segments=1,
         size=length,
         # matrix=Matrix.Rotation(radians(45), 4, "Z"),
@@ -200,6 +183,12 @@ def letter_letters(word1, word2, size=50, font_path=None, export_stls=False, dep
 
     for l in letters.objects:
         difference_with_offset(base_ob, l, depth)
+        bpy.context.view_layer.objects.active = l
+        bpy.ops.mesh.print3d_clean_non_manifold()
+
+    bpy.context.view_layer.objects.active = base_ob
+    bpy.ops.mesh.print3d_clean_non_manifold()
+    bpy.context.view_layer.objects.active = None
 
     # Light
     light_data = bpy.data.lights.new("MyLight", "SPOT")
@@ -208,7 +197,7 @@ def letter_letters(word1, word2, size=50, font_path=None, export_stls=False, dep
     light_data.energy = size * 1000  # size kW light power
     light_data.spot_size = pi / 2
     # light_ob.location = 0.5, -0.5, 0.2  # positive x, negative y
-    light_ob.location = mv, -mv, 0.0  # positive x, negative y
+    light_ob.location = length, 0, 0  # positive x, negative y
     aimer = light_ob.constraints.new(type="TRACK_TO")
     aimer.target = letters.objects[len(letters.objects) // 2]
     aimer.track_axis = "TRACK_NEGATIVE_Z"
@@ -222,6 +211,7 @@ def letter_letters(word1, word2, size=50, font_path=None, export_stls=False, dep
     scene.camera = cam_ob       # set the active camera
     cam_ob.location = 0.0, 0.0, 10.0
     """
+
     bpy.context.view_layer.update()
     bpy.ops.wm.save_as_mainfile(
         filepath=str(Path(f"letters_{word1}{word2}.blend").absolute())
@@ -230,40 +220,19 @@ def letter_letters(word1, word2, size=50, font_path=None, export_stls=False, dep
     if export_stls:
         print("Exporting .stl's")
         # all together now
-        # bpy.ops.object.select_all(action="DESELECT")
-        # for l in letters.objects:
-        #     for child in l.children:
-        #         if child.name.startswith("letters"):
-        #             child.select_set(True)
-
-        # bpy.ops.export_mesh.stl(
-        #     filepath=str(Path(f"letters_{word1}{word2}.stl").absolute()),
-        #     use_selection=True,
-        #     use_mesh_modifiers=True,
-        #     batch_mode="OFF",
-        # )
-        # bpy.ops.object.select_all(action="DESELECT")
-
         bpy.ops.object.select_all(action="DESELECT")
         for l in letters.objects:
             l.select_set(True)
-            bpy.ops.export_mesh.stl(
-                filepath=str(Path(f"{l.name}.stl").absolute()),
-                use_selection=True,
-                use_mesh_modifiers=True,
-                batch_mode="OFF",
-            )
-            l.select_set(False)
-        for o in bpy.context.scene.collection.objects:
-            if o.name == base_name:
-                o.select_set(True)
-                bpy.ops.export_mesh.stl(
-                    filepath=str(Path(f"{o.name}.stl").absolute()),
-                    use_selection=True,
-                    use_mesh_modifiers=True,
-                    batch_mode="OFF",
-                )
-                o.select_set(False)
+        bpy.context.scene.collection.objects.get(base_name).select_set(True)
+
+        bpy.ops.export_mesh.stl(
+            # filepath=str(Path(f"{l.name}.stl").absolute()),
+            filter_glob=str(Path(f"*.stl").absolute()),
+            use_selection=True,
+            use_mesh_modifiers=True,
+            batch_mode="OBJECT",
+        )
+        bpy.ops.object.select_all(action="DESELECT")
 
 
 def letter_cubes(
